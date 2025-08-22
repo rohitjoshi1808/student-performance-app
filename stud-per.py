@@ -5,6 +5,15 @@ import streamlit as st
 import pickle
 from sklearn.preprocessing import StandardScaler,LabelEncoder
 
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+uri = "mongodb+srv://rohitjoshi:<rohit123joshi>@cluster0.l4thyh1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(uri, server_api=ServerApi('1'))
+db = client['student']
+collection = db["student_pred"]
+
+
 def load_model():
     with open("student_lr_final_model.pkl","rb") as file:
         model,scaler,le=pickle.load(file)
@@ -44,6 +53,9 @@ def main():
         prediction = predict_data(user_data)
         st.success(f"Your prediction result is {prediction}")
 
+        user_data['prediction'] = prediction
+        collection.insert_one(user_data)
+        
 if __name__ == "__main__":
     main()
 
